@@ -13,6 +13,7 @@ import math
 import time
 from matplotlib import pyplot as plt
 from matplotlib import animation
+import itertools
 
 
 start = time.time()
@@ -480,6 +481,15 @@ def LZposition(lists):
         
     return lists
             
+def antigen_distribution(ntotal,ndiv):
+    a=round(ndiv/2)
+    a1=round(ntotal/a)
+    ar=[]
+    for i in range(a):
+        a2=random.randint(1,a1)
+        ar+=[a2,a1-a2]
+    return ar
+
     
 
 # First set up the figure, the axis, and the plot element we want to animate
@@ -491,20 +501,25 @@ n_tfh=200
 #tfh_x_coord=np.random.randint(500,1000,n_tfh)
 #tfh_y_coord=np.random.randint(0,500,n_tfh)
 
-antigen_num=1000000
+#antigen_num=1000000
 tlist = [Tcell() for t in range(n_tfh)]
 
 tt=np.array([[t.xpos,t.ypos] for t in tlist]);plt.plot(tt[:,0],tt[:,1],'ro',ms=1)
 
 #plt.plot(tfh_x_coord,tfh_y_coord,'ro',ms=1)
-
-fdc_x_coord=np.random.randint(500,1000,200)
-fdc_y_coord=np.random.randint(0,500,200)
+n_fdc=200
+antg_p_fdc=3000
+arm_fdc=6
+fdc_x_coord=np.random.randint(500,1000,n_fdc)
+fdc_y_coord=np.random.randint(0,500,n_fdc)
 antg_x_coord=[round(np.random.normal(k, 5),0) for k in fdc_x_coord for b in range(6)]
 antg_y_coord=[round(np.random.normal(k, 5),0) for k in fdc_y_coord for b in range(6)]
 n_antg=500
 
-antg_load=[n_antg for n in antg_x_coord]
+#antg_load=[n_antg for n in antg_x_coord]
+
+antg_load=list(itertools.chain(*[antigen_distribution(antg_p_fdc,arm_fdc) for i in range(n_fdc)]))
+
 plt.plot(antg_x_coord,antg_y_coord,'bo',ms=1)
 
 
