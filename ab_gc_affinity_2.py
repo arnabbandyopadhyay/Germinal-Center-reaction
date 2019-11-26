@@ -22,7 +22,7 @@ mu2, sigma2 = 7, 12
 box_width_dz=500
 box_width_lz=500
 opseq=[3,3,3,3]
-mum, sigm = 3, 1 # hr from LZ to DZ and vice versa
+mum, sigm = 5, 1 # hr from LZ to DZ and vice versa
 class Bcell:
     """ Class of B cell that contains the followings:
         - current generation
@@ -223,7 +223,7 @@ def mutate(seq):
 
 
 
-def antigen_collect(lists,antigen_num):
+def antigen_collect(lists,antg_load):
     """ Returns lists for keeping track of free (outside of GCs) memory and
     naive B cells as well as a list of lists of B cells waiting for surivival
     signals in each GC. """
@@ -233,13 +233,14 @@ def antigen_collect(lists,antigen_num):
         dist=[math.sqrt((b.xpos-i[0])**2 + (b.ypos-i[1])**2) for i in zip(antg_x_coord,antg_y_coord)]
         min_dist=min(dist)
         if min_dist < radius_fdc:
+            pos=dist.index(min_dist)
             antigen_collect=np.random.binomial(1,b.affinity)
-            if antigen_collect ==1 and antigen_num>0:
-                antigen_num=antigen_num-1
+            if antigen_collect ==1 and antg_load[pos]>0:
+                antg_load[pos] -=1
                 b.antigen_collect +=1
                 b.fdc_selected = 1
         
-    return lists, antigen_num
+    return lists, antg_load
 
 
 
@@ -487,10 +488,11 @@ ax = plt.axes(xlim=(1, 1000), ylim=(1, 500))
 plt.axvline(x=500,linewidth=4,color='r')
 
 n_tfh=200
-tfh_x_coord=np.random.randint(500,1000,n_tfh)
-tfh_y_coord=np.random.randint(0,500,n_tfh)
+#tfh_x_coord=np.random.randint(500,1000,n_tfh)
+#tfh_y_coord=np.random.randint(0,500,n_tfh)
+
 antigen_num=1000000
-tlist = [Tcell() for t in range(200)]
+tlist = [Tcell() for t in range(n_tfh)]
 
 tt=np.array([[t.xpos,t.ypos] for t in tlist]);plt.plot(tt[:,0],tt[:,1],'ro',ms=1)
 
@@ -500,6 +502,9 @@ fdc_x_coord=np.random.randint(500,1000,200)
 fdc_y_coord=np.random.randint(0,500,200)
 antg_x_coord=[round(np.random.normal(k, 5),0) for k in fdc_x_coord for b in range(6)]
 antg_y_coord=[round(np.random.normal(k, 5),0) for k in fdc_y_coord for b in range(6)]
+n_antg=500
+
+antg_load=[n_antg for n in antg_x_coord]
 plt.plot(antg_x_coord,antg_y_coord,'bo',ms=1)
 
 
@@ -537,7 +542,7 @@ def init():
 #        
 #bt=[b.nextdiv for b in lists]
 radius=10
-radius_fdc=100
+radius_fdc=10
 dt=1
 generation=0
 tnow=0
@@ -560,7 +565,8 @@ affy2=[]
 
 #trange=np.arange(1, 250, 0.1).tolist()
 for tnow in np.arange(1,500,timestep):
-    print(tnow, len(lists),len(LZ))
+    if (round(tnow,2) % 10) == 0:
+        print(tnow, len(lists),len(LZ))
 
     bbc=[]
     
@@ -732,9 +738,9 @@ for tnow in np.arange(1,500,timestep):
 #    bb.append(LZ[:])
     
 
-    LZ, antigen_num =antigen_collect(LZ,antigen_num)
+    LZ, antg_load =antigen_collect(LZ,antg_load)
     
-    print(antigen_num)
+#    print(sum(antg_load))
     
 #    print([[b,b.birthtime, b.tmigration, b.LZentrytime,b.antg_clt, b.affinity,b.antigen_collect] for b in LZ])
     
@@ -749,7 +755,7 @@ for tnow in np.arange(1,500,timestep):
     [LZ.remove(x) for x in appcells]
     
 #    pbc=[b for b in LZ if b.antigen_collect > 0 and b.antg_clt < tnow and b.tfh_contact_start < tnow and b.tfh_contact_end > tnow] ### how about implement this in t_help function, like LZposition and antigen collect function
-    print(len([b.antigen_collect for b in LZ if b.antigen_collect > 0]))
+#    print(len([b.antigen_collect for b in LZ if b.antigen_collect > 0]))
     LZ=thelp3(LZ)
     for b in LZ:
         if b.tfh_contact_end < tnow:
@@ -762,10 +768,10 @@ for tnow in np.arange(1,500,timestep):
     antgcollect.append([[b.generation,b.affinity,b.selected, b.antigen_collect,b.nextdiv,b.tmigration,b.ndiv] for b in LZ])
             
         
-    selected_cells=[b for b in LZ if b.tfhsignal > 1.5 and b.tfh_contact_end < tnow]
-    print(len(selected_cells))
+    selected_cells=[b for b in LZ if b.tfhsignal > 0.5 and b.tfh_contact_end < tnow]
+#    print(len(selected_cells))
     
-    unselected_cells=[b for b in LZ if b.tfhsignal <= 1.5 and b.tfh_contact_end < tnow]
+    unselected_cells=[b for b in LZ if b.tfhsignal <= 0.5 and b.tfh_contact_end < tnow]
     appopcells+=unselected_cells
     
 #    selected_cells=[b for b in LZ if b.antigen_collect >6 and b.tfh_contact_end < tnow]
@@ -796,7 +802,7 @@ for tnow in np.arange(1,500,timestep):
     ps_cells=random.choices(selected_cells, k=np.random.binomial(len(selected_cells),0.8))
     ps_cells=set(ps_cells)
     outputcells+=ps_cells
-    print([len(selected_cells),len(ps_cells)])
+#    print([len(selected_cells),len(ps_cells)])
     
     [LZ.remove(x) for x in selected_cells]
     
@@ -879,9 +885,14 @@ fig.savefig('gc.pdf')
 
 affy2=np.array(affy2)
 
+fig=plt.figure()
 #labels=(,'LZ Bcells','All Bcells')
 plt.plot(affy2[:,0], affy2[:,1], label='Affinity')
 plt.legend()
+
+plt.show()
+
+fig.savefig('affinity.pdf')
 
 end = time.time()
 
