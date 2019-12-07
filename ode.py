@@ -1,0 +1,421 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Dec  6 09:41:47 2019
+
+@author: abp19
+"""
+
+import numpy as np
+from scipy.integrate import odeint
+import matplotlib.pyplot as plt
+
+# function that returns dy/dt
+def model(dydt,t):
+    bn, bgc, bm, bpc, uc, ic, v, nk = dydt
+    if t>72:
+        k=0
+    else:
+        k=1
+    s=100*k
+    km = 0.01
+    kmp=0.01
+    p=0.05
+    kv=0.001
+    knk=0.1
+    kdv=0.01
+    kin=0.003
+    kdi=0.1
+    eq = [s-p*bn, 2*p*bn-2*km*bgc, km*bgc, kmp*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
+    return eq
+
+# initial condition
+y0 = [1,0,0,0,1000,0,1,100]
+
+# time points
+t = np.linspace(0,500,1000)
+
+# solve ODE
+y = odeint(model,y0,t)
+
+
+def sim_model(x):
+    # input arguments
+    Km, kmp = x
+    # storage for model values
+    T1p = np.ones(ns) * T1_0
+    T2p = np.ones(ns) * T2_0
+    # loop through time steps    
+    for i in range(0,ns-1):
+        ts = [t[i],t[i+1]]
+        T = odeint(fopdt,[T1p[i],T2p[i]],ts,args=(Qf1,Qf2,Kp,Kd,taup,thetap))
+        T1p[i+1] = T[-1,0]
+        T2p[i+1] = T[-1,1]
+    return T1p,T2p
+
+
+
+
+
+
+# plot results
+plt.plot(t,y[:,0],'b',t,y[:,1],'g',t,y[:,2],'r',t,y[:,3],'k')
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.show()
+
+
+# plot results
+plt.plot(t,y[:,4],'b',t,y[:,5],'g')
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.show()
+
+# plot results
+plt.plot(t,y[:,6],'b',t,y[:,7],'g')
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.show()
+
+
+
+
+#import numpy as np
+#import pandas as pd
+#import matplotlib.pyplot as plt
+##matplotlib inline
+#from scipy.integrate import odeint
+#from scipy.optimize import minimize
+#from scipy.interpolate import interp1d
+#
+## initial guesses
+#x0 = np.zeros(4)
+#x0[0] = 0.8 # Kp
+#x0[1] = 0.2 # Kd
+#x0[2] = 150.0 # taup
+#x0[3] = 10.0 # thetap
+#
+## Import CSV data file
+## try to read local data file first
+#try:
+#    filename = 'data.csv'
+#    data = pd.read_csv(filename)
+#except:
+#    filename = 'http://apmonitor.com/pdc/uploads/Main/tclab_data2.txt'
+#    data = pd.read_csv(filename)
+#Q1_0 = data['Q1'].values[0]
+#Q2_0 = data['Q2'].values[0]
+#T1_0 = data['T1'].values[0]
+#T2_0 = data['T2'].values[0]
+#t = data['Time'].values - data['Time'].values[0]
+#Q1 = data['Q1'].values
+#Q2 = data['Q2'].values
+#T1 = data['T1'].values
+#T2 = data['T2'].values
+#
+## specify number of steps
+#ns = len(t)
+#delta_t = t[1]-t[0]
+## create linear interpolation of the u data versus time
+#Qf1 = interp1d(t,Q1)
+#Qf2 = interp1d(t,Q2)
+#
+## define first-order plus dead-time approximation    
+#def fopdt(T,t,Qf1,Qf2,Kp,Kd,taup,thetap):
+#    #  T      = states
+#    #  t      = time
+#    #  Qf1    = input linear function (for time shift)
+#    #  Qf2    = input linear function (for time shift)
+#    #  Kp     = model gain
+#    #  Kd     = disturbance gain
+#    #  taup   = model time constant
+#    #  thetap = model time constant
+#    # time-shift Q
+#    try:
+#        if (t-thetap) <= 0:
+#            Qm1 = Qf1(0.0)
+#            Qm2 = Qf2(0.0)
+#        else:
+#            Qm1 = Qf1(t-thetap)
+#            Qm2 = Qf2(t-thetap)
+#    except:
+#        Qm1 = Q1_0
+#        Qm2 = Q2_0
+#    # calculate derivative
+#    dT1dt = (-(T[0]-T1_0) + Kp*(Qm1-Q1_0) + Kd*(T[1]-T[0]))/taup
+#    dT2dt = (-(T[1]-T2_0) + (Kp/2.0)*(Qm2-Q2_0) + Kd*(T[0]-T[1]))/taup
+#    return [dT1dt,dT2dt]
+#
+## simulate FOPDT model
+#def sim_model(x):
+#    # input arguments
+#    Kp,Kd,taup,thetap = x
+#    # storage for model values
+#    T1p = np.ones(ns) * T1_0
+#    T2p = np.ones(ns) * T2_0
+#    # loop through time steps    
+#    for i in range(0,ns-1):
+#        ts = [t[i],t[i+1]]
+#        T = odeint(fopdt,[T1p[i],T2p[i]],ts,args=(Qf1,Qf2,Kp,Kd,taup,thetap))
+#        T1p[i+1] = T[-1,0]
+#        T2p[i+1] = T[-1,1]
+#    return T1p,T2p
+#
+## define objective
+#def objective(x):
+#    # simulate model
+#    T1p,T2p = sim_model(x)
+#    # return objective
+#    return sum(np.abs(T1p-T1)+np.abs(T2p-T2))
+#
+## show initial objective
+#print('Initial SSE Objective: ' + str(objective(x0)))
+#print('Optimizing Values...')
+#
+## optimize without parameter constraints
+##solution = minimize(objective,x0)
+#
+## optimize with bounds on variables
+#bnds = ((0.4, 1.5), (0.1, 0.5), (50.0, 200.0), (0.0, 30.0))
+#solution = minimize(objective,x0,bounds=bnds,method='SLSQP')
+#
+## show final objective
+#x = solution.x
+#iae = objective(x)
+#Kp,Kd,taup,thetap = x
+#print('Final SSE Objective: ' + str(objective(x)))
+#print('Kp: ' + str(Kp))
+#print('Kd: ' + str(Kd))
+#print('taup: ' + str(taup))
+#print('thetap: ' + str(thetap))
+## save fopdt.txt file
+#fid = open('fopdt.txt','w')
+#fid.write(str(Kp)+'\n')
+#fid.write(str(Kd)+'\n')
+#fid.write(str(taup)+'\n')
+#fid.write(str(thetap)+'\n')
+#fid.write(str(T1_0)+'\n')
+#fid.write(str(T2_0)+'\n')
+#fid.close()
+#
+## calculate model with updated parameters
+#T1p,T2p = sim_model(x)
+#
+#plt.figure(1,figsize=(15,7))
+#plt.subplot(2,1,1)
+#plt.plot(t,T1,'r.',linewidth=2,label='Temperature 1 (meas)')
+#plt.plot(t,T2,'b.',linewidth=2,label='Temperature 2 (meas)')
+#plt.plot(t,T1p,'r--',linewidth=2,label='Temperature 1 (pred)')
+#plt.plot(t,T2p,'b--',linewidth=2,label='Temperature 2 (pred)')
+#plt.ylabel(r'T $(^oC)$')
+#plt.text(200,20,'Integral Abs Error: ' + str(np.round(iae,2)))
+#plt.text(400,35,r'$K_p$: ' + str(np.round(Kp,2)))  
+#plt.text(400,30,r'$K_d$: ' + str(np.round(Kd,2)))  
+#plt.text(400,25,r'$\tau_p$: ' + str(np.round(taup,1)) + ' sec')  
+#plt.text(400,20,r'$\theta_p$: ' + str(np.round(thetap,1)) + ' sec')  
+#plt.legend(loc=2)
+#plt.subplot(2,1,2)
+#plt.plot(t,Q1,'b--',linewidth=2,label=r'Heater 1 ($Q_1$)')
+#plt.plot(t,Q2,'r:',linewidth=2,label=r'Heater 2 ($Q_2$)')
+#plt.legend(loc='best')
+#plt.xlabel('time (sec)')
+#plt.show()
+
+## example 2
+
+#import pylab as pp
+#import numpy as np
+#from scipy import integrate, interpolate
+#from scipy import optimize
+#
+###initialize the data
+#x_data = np.linspace(0,9,10)
+#y_data = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+#
+#
+#def f(y, t, k): 
+#    """define the ODE system in terms of 
+#        dependent variable y,
+#        independent variable t, and
+#        optinal parmaeters, in this case a single variable k """
+#    return (-k[0]*y[0],
+#          k[0]*y[0]-k[1]*y[1],
+#          k[1]*y[1])
+#
+#def my_ls_func(x,teta):
+#    """definition of function for LS fit
+#        x gives evaluation points,
+#        teta is an array of parameters to be varied for fit"""
+#    # create an alias to f which passes the optional params    
+#    f2 = lambda y,t: f(y, t, teta)
+#    # calculate ode solution, retuen values for each entry of "x"
+#    r = integrate.odeint(f2,y0,x)
+#    #in this case, we only need one of the dependent variable values
+#    return r[:,1]
+#
+#def f_resid(p):
+#    """ function to pass to optimize.leastsq
+#        The routine will square and sum the values returned by 
+#        this function""" 
+#    return y_data-my_ls_func(x_data,p)
+##solve the system - the solution is in variable c
+#guess = [0.2,0.3] #initial guess for params
+#y0 = [1,0,0] #inital conditions for ODEs
+#(c,kvg) = optimize.leastsq(f_resid, guess) #get params
+#
+#print("parameter values are ",c)
+#
+## fit ODE results to interpolating spline just for fun
+#xeval=np.linspace(min(x_data), max(x_data),30) 
+#gls = interpolate.UnivariateSpline(xeval, my_ls_func(xeval,c), k=3, s=0)
+#
+##pick a few more points for a very smooth curve, then plot 
+##   data and curve fit
+#xeval=np.linspace(min(x_data), max(x_data),200)
+##Plot of the data as red dots and fit as blue line
+#pp.plot(x_data, y_data,'.r',xeval,gls(xeval),'-b')
+#pp.xlabel('xlabel',{"fontsize":16})
+#pp.ylabel("ylabel",{"fontsize":16})
+#pp.legend(('data','fit'),loc=0)
+#pp.show()
+
+
+
+## example 3
+
+# cleaned up a bit to get my head around it - thanks for sharing 
+#import pylab as pp
+#import numpy as np
+#from scipy import integrate, optimize
+#
+#class Parameterize_ODE():
+#    def __init__(self):
+#        self.X = np.linspace(0,9,10)
+#        self.y = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+#        self.y0 = [1,0,0] # inital conditions ODEs
+#    def ode(self, y, X, p):
+#        return (-p[0]*y[0],
+#                 p[0]*y[0]-p[1]*y[1],
+#                           p[1]*y[1])
+#    def model(self, X, p):
+#        return integrate.odeint(self.ode, self.y0, X, args=(p,))
+#    def f_resid(self, p):
+#        return self.y - self.model(self.X, p)[:,1]
+#    def optim(self, p_quess):
+#        return optimize.leastsq(self.f_resid, p_guess) # fit params
+#
+#po = Parameterize_ODE(); p_guess = [0.2, 0.3] 
+#c, kvg = po.optim(p_guess)
+#
+## --- show ---
+#print("parameter values are ", c, kvg)
+#x = np.linspace(min(po.X), max(po.X), 2000)
+#pp.plot(po.X, po.y,'.r',x, po.model(x, c)[:,1],'-b')
+#pp.xlabel('X',{"fontsize":16}); pp.ylabel("y",{"fontsize":16}); pp.legend(('data','fit'),loc=0); pp.show()
+
+
+
+
+
+
+## example 4
+#from lmfit import minimize, Parameters, Parameter, report_fit
+#from scipy.integrate import odeint
+#
+#def f(xs, t, ps):
+#    """Lotka-Volterra predator-prey model."""
+#    try:
+#        a = ps['a'].value
+#        b = ps['b'].value
+#        c = ps['c'].value
+#        d = ps['d'].value
+#    except:
+#        a, b, c, d = ps
+#
+#    x, y = xs
+#    return [a*x - b*x*y, c*x*y - d*y]
+#
+#def g(t, x0, ps):
+#    """
+#    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+#    """
+#    x = odeint(f, x0, t, args=(ps,))
+#    return x
+#
+#def residual(ps, ts, data):
+#    x0 = ps['x0'].value, ps['y0'].value
+#    model = g(ts, x0, ps)
+#    return (model - data).ravel()
+#
+#t = np.linspace(0, 10, 100)
+#x0 = np.array([1,1])
+#
+#a, b, c, d = 3,1,1,1
+#true_params = np.array((a, b, c, d))
+#data = g(t, x0, true_params)
+#data += np.random.normal(size=data.shape)
+#
+## set parameters incluing bounds
+#params = Parameters()
+#params.add('x0', value= float(data[0, 0]), min=0, max=10)
+#params.add('y0', value=float(data[0, 1]), min=0, max=10)
+#params.add('a', value=2.0, min=0, max=10)
+#params.add('b', value=1.0, min=0, max=10)
+#params.add('c', value=1.0, min=0, max=10)
+#params.add('d', value=1.0, min=0, max=10)
+#
+## fit model and find predicted values
+#result = minimize(residual, params, args=(t, data), method='leastsq')
+#final = data + result.residual.reshape(data.shape)
+#
+## plot data and fitted curves
+#plt.plot(t, data, 'o')
+#plt.plot(t, final, '-', linewidth=2);
+#
+## display fitted statistics
+#report_fit(result)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
