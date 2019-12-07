@@ -30,33 +30,21 @@ def model(dydt,t):
     return eq
 
 # initial condition
-y0 = [1,0,0,0,1000,0,1,100]
+bn0=1
+bgc0=0
+bm0=0
+bpc0=0
+uc0=1000
+ic0=0
+v0=1
+nk0=100
+y0 = [bn0,bgc0,bm0,bpc0,uc0,ic0,v0,nk0]
 
 # time points
 t = np.linspace(0,500,1000)
 
 # solve ODE
 y = odeint(model,y0,t)
-
-
-def sim_model(x):
-    # input arguments
-    Km, kmp = x
-    # storage for model values
-    T1p = np.ones(ns) * T1_0
-    T2p = np.ones(ns) * T2_0
-    # loop through time steps    
-    for i in range(0,ns-1):
-        ts = [t[i],t[i+1]]
-        T = odeint(fopdt,[T1p[i],T2p[i]],ts,args=(Qf1,Qf2,Kp,Kd,taup,thetap))
-        T1p[i+1] = T[-1,0]
-        T2p[i+1] = T[-1,1]
-    return T1p,T2p
-
-
-
-
-
 
 # plot results
 plt.plot(t,y[:,0],'b',t,y[:,1],'g',t,y[:,2],'r',t,y[:,3],'k')
@@ -76,6 +64,257 @@ plt.plot(t,y[:,6],'b',t,y[:,7],'g')
 plt.xlabel('time')
 plt.ylabel('y(t)')
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+def f(y, t, paras):
+    """
+    Your system of differential equations
+    """
+
+    bn = y[0]
+    bgc = y[1]
+    bm = y[2]
+    bpc = y[3]
+    uc = y[4]
+    ic = y[5]
+    v = y[6]
+    nk = y[7]
+    
+    if t>72:
+        k=0
+    else:
+        k=1
+        
+    kv=0.001
+    knk=0.1
+    kdv=0.01
+    kin=0.003
+    kdi=0.1
+
+    try:
+        ky = paras['ky'].value
+        km = paras['km'].value
+        kmp = paras['kmp'].value
+        p = paras['p'].value
+
+    except KeyError:
+        ky, km, kmp, p = paras
+    # the model equations
+    bnp = ky*k-p*bn
+    bgcp = 2*p*bn-2*km*bgc
+    bmp = km*bgc
+    bpcp = kmp*bgc
+    ucp = -kin*uc*v
+    icp = kin*uc*v -kdi*ic*nk
+    vp = kv*ic-kdv*v
+    nkp = knk-kdi*nk*ic
+    
+    return [bnp, bgcp, bmp, bpcp, ucp, icp, vp, nkp]
+
+def g(t, x0, paras):
+    """
+    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+    """
+    x = odeint(f, x0, t, args=(paras,))
+    return x
+
+
+def residual(paras, t, data):
+
+    """
+    compute the residual between actual data and fitted data
+    """
+
+    x0 = paras['bn0'].value, paras['bgc0'].value, paras['bm0'].value, paras['bpc0'].value, paras['uc0'].value, paras['ic0'].value,paras['v0'].value, paras['nk0'].value
+    model = g(t, x0, paras)
+
+    # you only have data for one of your variables
+    x2_model = model[:, 1]
+    return (x2_model - data).ravel()
+
+# initial condition
+bn0=1
+bgc0=0
+bm0=0
+bpc0=0
+uc0=1000
+ic0=0
+v0=1
+nk0=100
+y0 = [bn0,bgc0,bm0,bpc0,uc0,ic0,v0,nk0]
+
+
+
+# measured data
+t_measured = np.linspace(0, 9, 10)
+x2_measured = np.array([0.000, 0.416, 0.489, 0.595, 0.506, 0.493, 0.458, 0.394, 0.335, 0.309])
+
+plt.figure()
+plt.scatter(t_measured, x2_measured, marker='o', color='b', label='measured data', s=75)
+
+# set parameters including bounds; you can also fix parameters (use vary=False)
+params = Parameters()
+params.add('bn0', value=bn0, vary=False)
+params.add('bgc0', value=bgc0, vary=False)
+params.add('bm0', value=bm0, vary=False)
+params.add('bpc0', value=bpc0, vary=False)
+params.add('uc0', value=uc0, vary=False)
+params.add('ic0', value=ic0, vary=False)
+params.add('v0', value=v0, vary=False)
+params.add('nk0', value=nk0, vary=False)
+params.add('ky', value=ky, min=10^-3, max=200)
+params.add('km', value=km, min=10^-3, max=200)
+params.add('kmp', value=0.2, min=10^-3, max=200.)
+params.add('p', value=0.3, min=10^-3, max=200.)
+
+# fit model
+result = minimize(residual, params, args=(t_measured, x2_measured), method='leastsq')  # leastsq nelder
+# check results of the fit
+data_fitted = g(np.linspace(0., 9., 100), y0, result.params)
+
+# plot fitted data
+plt.plot(np.linspace(0., 9., 100), data_fitted[:, 1], '-', linewidth=2, color='red', label='fitted data')
+plt.legend()
+plt.xlim([0, max(t_measured)])
+plt.ylim([0, 1.1 * max(data_fitted[:, 1])])
+# display fitted statistics
+report_fit(result)
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##initialize the data
+
+
+import pylab as pp
+import numpy as np
+from scipy import integrate, interpolate
+from scipy import optimize
+
+x_data = np.linspace(0,9,10)
+y_data = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+
+
+def f(y, t, kk): 
+    bn, bgc, bm, bpc, uc, ic, v, nk = y
+    km,kmp,ky,p=kk
+    if t>72:
+        k=0
+    else:
+        k=1
+#    s=100*k
+#    p=0.05
+    kv=0.001
+    knk=0.1
+    kdv=0.01
+    kin=0.003
+    kdi=0.1
+    eq = [kk[2]*k-kk[3]*bn, 2*kk[3]*bn-2*kk[0]*bgc, kk[0]*bgc, kk[1]*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
+    return eq
+
+def objective(x):
+    # simulate model
+    T1p,T2p = sim_model(x)
+    # return objective
+    return sum(np.abs(T1p-T1)+np.abs(T2p-T2))
+
+
+
+
+
+
+def my_ls_func(x,teta):
+    """definition of function for LS fit
+        x gives evaluation points,
+        teta is an array of parameters to be varied for fit"""
+    # create an alias to f which passes the optional params    
+    f2 = lambda y,t: f(y, t, teta)
+    # calculate ode solution, retuen values for each entry of "x"
+    r = integrate.odeint(f2,y0,x)
+    #in this case, we only need one of the dependent variable values
+    return r[:,2]
+
+def f_resid(p):
+    """ function to pass to optimize.leastsq
+        The routine will square and sum the values returned by 
+        this function""" 
+    return y_data-my_ls_func(x_data,p)
+#solve the system - the solution is in variable c
+guess = [0.2,0.3,0.1,0.1] #initial guess for params
+y0 = [1,0,0,0,1000,0,1,100]
+(c,kvg) = optimize.leastsq(f_resid, guess) #get params
+
+print("parameter values are ",c)
+
+# fit ODE results to interpolating spline just for fun
+xeval=np.linspace(min(x_data), max(x_data),30) 
+gls = interpolate.UnivariateSpline(xeval, my_ls_func(xeval,c), k=3, s=0)
+
+#pick a few more points for a very smooth curve, then plot 
+#   data and curve fit
+xeval=np.linspace(min(x_data), max(x_data),200)
+#Plot of the data as red dots and fit as blue line
+pp.plot(x_data, y_data,'.r',xeval,gls(xeval),'-b')
+pp.xlabel('xlabel',{"fontsize":16})
+pp.ylabel("ylabel",{"fontsize":16})
+pp.legend(('data','fit'),loc=0)
+pp.show()
+
+
+
+
+
+
+
 
 
 
