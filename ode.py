@@ -9,7 +9,8 @@ Created on Fri Dec  6 09:41:47 2019
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-
+from lmfit import minimize, Parameters, Parameter, report_fit
+#from scipy.optimize import minimize
 # function that returns dy/dt
 def model(dydt,t):
     bn, bgc, bm, bpc, uc, ic, v, nk = dydt
@@ -19,14 +20,14 @@ def model(dydt,t):
         k=1
     s=100*k
     km = 0.01
-    kmp=0.01
+    kmp=0.005
     p=0.05
     kv=0.001
     knk=0.1
     kdv=0.01
     kin=0.003
     kdi=0.1
-    eq = [s-p*bn, 2*p*bn-2*km*bgc, km*bgc, kmp*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
+    eq = [s-p*bn, 2*p*bn-km*bgc-kmp*bgc, km*bgc, kmp*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
     return eq
 
 # initial condition
@@ -46,23 +47,34 @@ t = np.linspace(0,500,1000)
 # solve ODE
 y = odeint(model,y0,t)
 
+t=t/24
+
 # plot results
-plt.plot(t,y[:,0],'b',t,y[:,1],'g',t,y[:,2],'r',t,y[:,3],'k')
+plt.plot(t,y[:,0],'b',label='naive')
+plt.plot(t,y[:,1],'g',label='Bgc')
+plt.plot(t,y[:,2],'r',label='Bm')
+plt.plot(t,y[:,3],'k',label='Bpc')
+
 plt.xlabel('time')
 plt.ylabel('y(t)')
+plt.legend()
 plt.show()
 
 
 # plot results
-plt.plot(t,y[:,4],'b',t,y[:,5],'g')
+plt.plot(t,y[:,4],'b',label='Uc')
+plt.plot(t,y[:,5],'g',label='Ic')
 plt.xlabel('time')
 plt.ylabel('y(t)')
+plt.legend()
 plt.show()
 
 # plot results
-plt.plot(t,y[:,6],'b',t,y[:,7],'g')
+plt.plot(t,y[:,6],'b',label='V')
+plt.plot(t,y[:,7],'g',label='NK')
 plt.xlabel('time')
 plt.ylabel('y(t)')
+plt.legend()
 plt.show()
 
 
@@ -112,7 +124,7 @@ def f(y, t, paras):
         ky, km, kmp, p = paras
     # the model equations
     bnp = ky*k-p*bn
-    bgcp = 2*p*bn-2*km*bgc
+    bgcp = 2*p*bn-km*bgc -kmp*bgc
     bmp = km*bgc
     bpcp = kmp*bgc
     ucp = -kin*uc*v
@@ -157,11 +169,18 @@ y0 = [bn0,bgc0,bm0,bpc0,uc0,ic0,v0,nk0]
 
 
 # measured data
-t_measured = np.linspace(0, 9, 10)
-x2_measured = np.array([0.000, 0.416, 0.489, 0.595, 0.506, 0.493, 0.458, 0.394, 0.335, 0.309])
+t_measured = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37])
+#x2_measured = np.array([0.000, 0.416, 0.489, 0.595, 0.506, 0.493, 0.458, 0.394, 0.335, 0.309])
+
+igmm = np.array([1, 3.69, 8.98, 12.88, 16.27, 19.37, 22.96, 26.46, 29.55, 32.15, 34.45, 36.05, 37.46])
+iggm = np.array([0.40,1.80,5.00,8.59,12.39, 16.78, 22.56, 27.75, 33.14, 37.73, 41.63, 45.12, 48.72])
+iggpc = np.array([0.20, 0.71,1.81, 3.31, 4.82, 6.12, 8.12, 10.82, 14.11, 18.21, 22.4, 26.89, 31.48])
+
+#data=[igmm,iggm,iggpc]
+
 
 plt.figure()
-plt.scatter(t_measured, x2_measured, marker='o', color='b', label='measured data', s=75)
+plt.scatter(t_measured, igmm, marker='o', color='b', label='measured data', s=75)
 
 # set parameters including bounds; you can also fix parameters (use vary=False)
 params = Parameters()
@@ -173,21 +192,23 @@ params.add('uc0', value=uc0, vary=False)
 params.add('ic0', value=ic0, vary=False)
 params.add('v0', value=v0, vary=False)
 params.add('nk0', value=nk0, vary=False)
-params.add('ky', value=ky, min=10^-3, max=200)
-params.add('km', value=km, min=10^-3, max=200)
-params.add('kmp', value=0.2, min=10^-3, max=200.)
-params.add('p', value=0.3, min=10^-3, max=200.)
+params.add('ky', value=ky, min=0.001, max=1000)
+#params.add('ky', value=10, vary=False)
+params.add('km', value=km, min=0.001, max=1000)
+params.add('kmp', value=0.2, min=0.001, max=1000)
+params.add('p', value=0.3, min=0.001, max=1000)
 
 # fit model
-result = minimize(residual, params, args=(t_measured, x2_measured), method='leastsq')  # leastsq nelder
+result = minimize(residual, params, args=(t_measured, igmm), method='leastsq')  # leastsq nelder
 # check results of the fit
-data_fitted = g(np.linspace(0., 9., 100), y0, result.params)
+data_fitted = g(np.linspace(0., 50., 100), y0, result.params)
 
 # plot fitted data
-plt.plot(np.linspace(0., 9., 100), data_fitted[:, 1], '-', linewidth=2, color='red', label='fitted data')
+plt.plot(np.linspace(0., 50., 100), data_fitted[:, 1], '-', linewidth=2, color='red', label='fitted data')
 plt.legend()
 plt.xlim([0, max(t_measured)])
-plt.ylim([0, 1.1 * max(data_fitted[:, 1])])
+plt.ylim([0, 50])
+#plt.ylim([0, 1.1 * max(data_fitted[:, 1])])
 # display fitted statistics
 report_fit(result)
 
@@ -197,7 +218,56 @@ plt.show()
 
 
 
-
+###initialize the data
+#x_data = np.linspace(0,9,10)
+#y_data = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+#
+#
+#def f(y, t, k): 
+#    """define the ODE system in terms of 
+#        dependent variable y,
+#        independent variable t, and
+#        optinal parmaeters, in this case a single variable k """
+#    return (-k[0]*y[0],
+#          k[0]*y[0]-k[1]*y[1],
+#          k[1]*y[1])
+#
+#def my_ls_func(x,teta):
+#    """definition of function for LS fit
+#        x gives evaluation points,
+#        teta is an array of parameters to be varied for fit"""
+#    # create an alias to f which passes the optional params    
+#    f2 = lambda y,t: f(y, t, teta)
+#    # calculate ode solution, retuen values for each entry of "x"
+#    r = integrate.odeint(f2,y0,x)
+#    #in this case, we only need one of the dependent variable values
+#    return r[:,1]
+#
+#def f_resid(p):
+#    """ function to pass to optimize.leastsq
+#        The routine will square and sum the values returned by 
+#        this function""" 
+#    return y_data-my_ls_func(x_data,p)
+##solve the system - the solution is in variable c
+#guess = [0.2,0.3] #initial guess for params
+#y0 = [1,0,0] #inital conditions for ODEs
+#(c,kvg) = optimize.leastsq(f_resid, guess) #get params
+#
+#print("parameter values are ",c)
+#
+## fit ODE results to interpolating spline just for fun
+#xeval=np.linspace(min(x_data), max(x_data),30) 
+#gls = interpolate.UnivariateSpline(xeval, my_ls_func(xeval,c), k=3, s=0)
+#
+##pick a few more points for a very smooth curve, then plot 
+##   data and curve fit
+#xeval=np.linspace(min(x_data), max(x_data),200)
+##Plot of the data as red dots and fit as blue line
+#pp.plot(x_data, y_data,'.r',xeval,gls(xeval),'-b')
+#pp.xlabel('xlabel',{"fontsize":16})
+#pp.ylabel("ylabel",{"fontsize":16})
+#pp.legend(('data','fit'),loc=0)
+#pp.show()
 
 
 
@@ -233,16 +303,22 @@ plt.show()
 
 
 ##initialize the data
-
-
+#
+#
 import pylab as pp
 import numpy as np
 from scipy import integrate, interpolate
 from scipy import optimize
+from scipy.optimize import least_squares
 
-x_data = np.linspace(0,9,10)
-y_data = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+#x_data = np.linspace(0,9,10)
+#y_data = np.array([0.000,0.416,0.489,0.595,0.506,0.493,0.458,0.394,0.335,0.309])
+# measured data
+x_data = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37])
+#x2_measured = np.array([0.000, 0.416, 0.489, 0.595, 0.506, 0.493, 0.458, 0.394, 0.335, 0.309])
 
+y_data = np.array([1, 3.69, 8.98, 12.88, 16.27, 19.37, 22.96, 26.46, 29.55, 32.15, 34.45, 36.05, 37.46])
+y_data = np.array([0.40,1.80,5.00,8.59,12.39, 16.78, 22.56, 27.75, 33.14, 37.73, 41.63, 45.12, 48.72])
 
 def f(y, t, kk): 
     bn, bgc, bm, bpc, uc, ic, v, nk = y
@@ -258,18 +334,8 @@ def f(y, t, kk):
     kdv=0.01
     kin=0.003
     kdi=0.1
-    eq = [kk[2]*k-kk[3]*bn, 2*kk[3]*bn-2*kk[0]*bgc, kk[0]*bgc, kk[1]*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
+    eq = [kk[2]*k-kk[3]*bn, 2*kk[3]*bn-kk[0]*bgc-kk[1]*bgc, kk[0]*bgc, kk[1]*bgc, -kin*uc*v, kin*uc*v -kdi*ic*nk, kv*ic-kdv*v, knk-kdi*nk*ic]
     return eq
-
-def objective(x):
-    # simulate model
-    T1p,T2p = sim_model(x)
-    # return objective
-    return sum(np.abs(T1p-T1)+np.abs(T2p-T2))
-
-
-
-
 
 
 def my_ls_func(x,teta):
@@ -293,6 +359,7 @@ guess = [0.2,0.3,0.1,0.1] #initial guess for params
 y0 = [1,0,0,0,1000,0,1,100]
 (c,kvg) = optimize.leastsq(f_resid, guess) #get params
 
+
 print("parameter values are ",c)
 
 # fit ODE results to interpolating spline just for fun
@@ -309,6 +376,19 @@ pp.ylabel("ylabel",{"fontsize":16})
 pp.legend(('data','fit'),loc=0)
 pp.show()
 
+
+opt= least_squares(f_resid,(0.2,0.3,0.1,0.1),bounds=([0,1000]))
+gls = interpolate.UnivariateSpline(xeval, my_ls_func(xeval,opt.x), k=3, s=0)
+print("parameter values are ",opt.x)
+#pick a few more points for a very smooth curve, then plot 
+#   data and curve fit
+xeval=np.linspace(min(x_data), max(x_data),200)
+#Plot of the data as red dots and fit as blue line
+pp.plot(x_data, y_data,'.r',xeval,gls(xeval),'-b')
+pp.xlabel('xlabel',{"fontsize":16})
+pp.ylabel("ylabel",{"fontsize":16})
+pp.legend(('data','fit'),loc=0)
+pp.show()
 
 
 
@@ -558,61 +638,61 @@ pp.show()
 
 
 ## example 4
-#from lmfit import minimize, Parameters, Parameter, report_fit
-#from scipy.integrate import odeint
-#
-#def f(xs, t, ps):
-#    """Lotka-Volterra predator-prey model."""
-#    try:
-#        a = ps['a'].value
-#        b = ps['b'].value
-#        c = ps['c'].value
-#        d = ps['d'].value
-#    except:
-#        a, b, c, d = ps
-#
-#    x, y = xs
-#    return [a*x - b*x*y, c*x*y - d*y]
-#
-#def g(t, x0, ps):
-#    """
-#    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
-#    """
-#    x = odeint(f, x0, t, args=(ps,))
-#    return x
-#
-#def residual(ps, ts, data):
-#    x0 = ps['x0'].value, ps['y0'].value
-#    model = g(ts, x0, ps)
-#    return (model - data).ravel()
-#
-#t = np.linspace(0, 10, 100)
-#x0 = np.array([1,1])
-#
-#a, b, c, d = 3,1,1,1
-#true_params = np.array((a, b, c, d))
-#data = g(t, x0, true_params)
-#data += np.random.normal(size=data.shape)
-#
-## set parameters incluing bounds
-#params = Parameters()
-#params.add('x0', value= float(data[0, 0]), min=0, max=10)
-#params.add('y0', value=float(data[0, 1]), min=0, max=10)
-#params.add('a', value=2.0, min=0, max=10)
-#params.add('b', value=1.0, min=0, max=10)
-#params.add('c', value=1.0, min=0, max=10)
-#params.add('d', value=1.0, min=0, max=10)
-#
-## fit model and find predicted values
-#result = minimize(residual, params, args=(t, data), method='leastsq')
-#final = data + result.residual.reshape(data.shape)
-#
-## plot data and fitted curves
-#plt.plot(t, data, 'o')
-#plt.plot(t, final, '-', linewidth=2);
-#
-## display fitted statistics
-#report_fit(result)
+from lmfit import minimize, Parameters, Parameter, report_fit
+from scipy.integrate import odeint
+
+def f(xs, t, ps):
+    """Lotka-Volterra predator-prey model."""
+    try:
+        a = ps['a'].value
+        b = ps['b'].value
+        c = ps['c'].value
+        d = ps['d'].value
+    except:
+        a, b, c, d = ps
+
+    x, y = xs
+    return [a*x - b*x*y, c*x*y - d*y]
+
+def g(t, x0, ps):
+    """
+    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+    """
+    x = odeint(f, x0, t, args=(ps,))
+    return x
+
+def residual(ps, ts, data):
+    x0 = ps['x0'].value, ps['y0'].value
+    model = g(ts, x0, ps)
+    return (model - data).ravel()
+
+t = np.linspace(0, 10, 100)
+x0 = np.array([1,1])
+
+a, b, c, d = 3,1,1,1
+true_params = np.array((a, b, c, d))
+data = g(t, x0, true_params)
+data += np.random.normal(size=data.shape)
+
+# set parameters incluing bounds
+params = Parameters()
+params.add('x0', value= float(data[0, 0]), min=0, max=10)
+params.add('y0', value=float(data[0, 1]), min=0, max=10)
+params.add('a', value=2.0, min=0, max=10)
+params.add('b', value=1.0, min=0, max=10)
+params.add('c', value=1.0, min=0, max=10)
+params.add('d', value=1.0, min=0, max=10)
+
+# fit model and find predicted values
+result = minimize(residual, params, args=(t, data), method='leastsq')
+final = data + result.residual.reshape(data.shape)
+
+# plot data and fitted curves
+plt.plot(t, data, 'o')
+plt.plot(t, final, '-', linewidth=2);
+
+# display fitted statistics
+report_fit(result)
 
 
 
