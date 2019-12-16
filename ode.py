@@ -22,22 +22,22 @@ def model(dydt,t):
         kk=0
     else:
         kk=1
+        
     s=(bm)*k*kk
-    kmb=1
-    km = 0.01
-    kdm=0.1
-    kv=10
-    kmp=0.005
-    p=0.05
-    kv=0.001
-    knk=0.1
-    kdv=0.01
-    kdv2=0.0001
-    kdv3=0.1
-    kin=0.003
-    kdi=0.1
-    kdnk=0.01
-    eq = [s-p*bn, 2*p*bn-km*bgc-kmp*bgc, kmb*v/(kv+v) +km*bgc-kdm*bm-kdv2*bm*ic, kmp*bgc-kdv3*bpc*ic, -kin*uc*v, kin*uc*v -kdi*ic*nk-kdv2*bm*ic-kdv3*bpc*ic, kv*ic-kdv*v, knk-kdnk*nk-kdi*nk*ic]
+      
+    kmb=1;km = 0.01;kdm=0.1;kmp=0.005;p=0.05;
+    kvm=1;kv=0.001;knk=0.1;kdv=0.01;kdv2=0.0001;kdv3=0.1;kin=0.003;kdi=0.1;kdnk=0.01;
+    
+    dbn = s - p*bn
+    dbgc = 2*p*bn - km*bgc - kmp*bgc
+    dbm = kmb*v/(kvm+v) + km*bgc - kdm*bm - kdv2*bm*ic
+    dbpc = kmp*bgc - kdv3*bpc*ic
+    duc = - kin*uc*v
+    dic = kin*uc*v - kdi*ic*nk - kdv2*bm*ic - kdv3*bpc*ic
+    dv = kv*ic - kdv*v
+    dnk = knk - kdnk*nk - kdi*nk*ic
+    
+    eq = [dbn, dbgc, dbm, dbpc, duc, dic, dv, dnk]
     return eq
 
 # initial condition
@@ -62,6 +62,12 @@ t=t/24
 # plot results
 plt.plot(t,y[:,0],'b',label='naive')
 plt.plot(t,y[:,1],'g',label='Bgc')
+
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.legend()
+plt.show()
+
 plt.plot(t,y[:,2],'r',label='Bm')
 plt.plot(t,y[:,3],'k',label='Bpc')
 
@@ -86,6 +92,117 @@ plt.xlabel('time')
 plt.ylabel('y(t)')
 plt.legend()
 plt.show()
+
+
+
+
+
+
+
+
+def model(dydt,t):
+    bn, bgc, bmigm, bmigg, bpc, uc, ic, v, nk = dydt
+
+    if t<300:
+        kk=1
+    else:
+        kk=0
+        
+    s=1*(bmigm)*kk
+      
+    kmb=0.01;kmb2=0.001;km = 0.0005;kdm=0.01;kmp=0.0005;p=0.05;
+    kvm=800;kv=0.01;knk=0.1;kdv=0.01;kdv2=0.0001;kdv3=0.1;kin=0.0005;kdi=0.01;kdnk=0.01;
+    
+    dbn = s - p*bn
+    dbgc = 2*p*bn - km*bgc - kmp*bgc
+    dbmigm = kmb2*bgc + kmb*v/(kvm+v)  - kdm*bmigm 
+    dbmigg = km*bgc - kdv2*bmigg*ic
+    dbpc = kmp*bgc - kdv3*bpc*ic
+    duc = - kin*uc*v
+    dic = kin*uc*v - kdi*ic*nk - kdv2*bmigg*ic - kdv3*bpc*ic
+    dv = kv*ic - kdv*v
+    dnk = knk - kdnk*nk - kdi*nk*ic
+    
+    eq = [dbn, dbgc, dbmigm, dbmigg, dbpc, duc, dic, dv, dnk]
+    return eq
+
+# initial condition
+bn0=1
+bgc0=0
+bmigm0=0
+bmigg0=0
+bpc0=0
+uc0=1000
+ic0=0
+v0=1
+nk0=100
+y0 = [bn0,bgc0,bmigm0,bmigg0,bpc0,uc0,ic0,v0,nk0]
+
+# time points
+t = np.linspace(0,1000,5000)
+
+# solve ODE
+y = odeint(model,y0,t)
+
+t=t/24
+
+# plot results
+plt.plot(t,y[:,0],'b',label='naive')
+plt.plot(t,y[:,1],'g',label='Bgc')
+
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.legend()
+plt.show()
+
+plt.plot(t,y[:,2],'r',label='Bmigm')
+plt.plot(t,y[:,3],'m',label='Bmigg')
+plt.plot(t,y[:,4],'k',label='Bpc')
+
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.legend()
+plt.show()
+
+
+# plot results
+plt.plot(t,y[:,5],'b',label='Uc')
+plt.plot(t,y[:,6],'g',label='Ic')
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.legend()
+plt.show()
+
+# plot results
+plt.plot(t,y[:,7],'b',label='V')
+plt.plot(t,y[:,8],'g',label='NK')
+plt.xlabel('time')
+plt.ylabel('y(t)')
+plt.legend()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
