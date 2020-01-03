@@ -22,7 +22,11 @@ import time
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import itertools
-
+#import antigen
+#import multiprocessing
+#pool = multiprocessing.Pool(processes=2)
+from multiprocessing import Pool
+pool=Pool(2)
 
 start = time.time()
 
@@ -238,6 +242,7 @@ def distance(ll):
 
 def antigen_collect_map(b):
     dist=[math.sqrt((b.xpos-i[0])**2 + (b.ypos-i[1])**2) for i in zip(antg_x_coord,antg_y_coord)]
+
     min_dist=min(dist)
     if min_dist < radius_fdc:
         pos=dist.index(min_dist)
@@ -247,6 +252,26 @@ def antigen_collect_map(b):
             b.antigen_collect +=1
             b.fdc_selected = 1
     return b
+
+
+def antigen_collect_2(lists,antg_load):
+    dist=[[math.sqrt((b.xpos-i[0])**2 + (b.ypos-i[1])**2) for i in zip(antg_x_coord,antg_y_coord)] for b in lists]
+    min_dist=[min(dist[i]) for i in range(len(lists))]
+    dist2=[i for i in min_dist if i<radius_fdc]
+    posl=[[i for i,val in enumerate(min_dist) if val==j] for j in dist2]
+    posl2=[list(t) for t in set(tuple(element) for element in posl)] ## deleting duplicates
+    pos2=[k for i in posl2 for k in i]
+
+    for i in pos2:
+        b=lists[i]
+        antigen_collect=np.random.binomial(1,b.affinity)
+        if antigen_collect ==1 and antg_load[dist[i].index(min(dist[i]))]>0:
+            antg_load[dist[i].index(min(dist[i]))] -=1
+            b.antigen_collect +=1
+            b.fdc_selected = 1
+    return lists, antg_load 
+
+
 
 def antigen_collect(lists,antg_load):
     """ Returns lists for keeping track of free (outside of GCs) memory and
@@ -264,7 +289,8 @@ def antigen_collect(lists,antg_load):
 #                antg_load[pos] -=1
 #                b.antigen_collect +=1
 #                b.fdc_selected = 1
-    bc=list(map(antigen_collect_map,bc))
+    bc=list(map(antigen_collect_map2,bc))
+#   pool.close()
         
     return lists, antg_load
 
@@ -278,46 +304,56 @@ def antigen_collect(lists,antg_load):
 #    antg_xy.remove(_a)
 #pp=[]
 
+
+
+def intersection(lst1, lst2): 
+    tup1 = map(tuple, lst1) 
+    tup2 = map(tuple, lst2)  
+    return list(map(list, set(tup1).intersection(tup2))) 
+
+
 def antigen_collect_map2(b):
     xpos=[[b.xpos-5+i,b.ypos-5+j] for i in range(11) for j in range(11)]
         
-    res=[]
-    for _a in xpos:
-        if _a in antg_xy:
-            res.append(_a)
-            break
+#    res=[]
+#    for _a in xpos:
+#        if _a in antg_xy:
+#            res.append(_a)
+#            break
+    res=intersection(xpos,antg_xy)
     if len(res)>0:
-        pos=antg_xy.index(res[0])
+        pos=antg_xy.index(random.choices(res,k=1)[0])
         antigen_collect=np.random.binomial(1,b.affinity)
         if antigen_collect ==1 and antg_load[pos]>0:
             antg_load[pos] -=1
             b.antigen_collect +=1
             b.fdc_selected = 1
     return b
-def antigen_collect(lists,antg_load):
-    """ Returns lists for keeping track of free (outside of GCs) memory and
-    naive B cells as well as a list of lists of B cells waiting for surivival
-    signals in each GC. """
-    bc=[b for b in lists if b.LZentrytime <= tnow and tnow <= b.antg_clt]
-#    for i in range(len(bc)):
-#        b=bc[i]
-#        xpos=[[b.xpos-5+i,b.ypos-5+j] for i in range(11) for j in range(11)]
+#def antigen_collect(lists,antg_load):
+#    """ Returns lists for keeping track of free (outside of GCs) memory and
+#    naive B cells as well as a list of lists of B cells waiting for surivival
+#    signals in each GC. """
+#    bc=[b for b in lists if b.LZentrytime <= tnow and tnow <= b.antg_clt]
+##    for i in range(len(bc)):
+##        b=bc[i]
+##        xpos=[[b.xpos-5+i,b.ypos-5+j] for i in range(11) for j in range(11)]
+##        
+##        res=[]
+##        for _a in xpos:
+##            if _a in antg_xy:
+##                res.append(_a)
+##                break
+##        if len(res)>0:
+##            pos=antg_xy.index(res[0])
+##            antigen_collect=np.random.binomial(1,b.affinity)
+##            if antigen_collect ==1 and antg_load[pos]>0:
+##                antg_load[pos] -=1
+##                b.antigen_collect +=1
+##                b.fdc_selected = 1
+#    bc=list(pool.map(antigen_collect_map2,bc))
+#    pool.close()
 #        
-#        res=[]
-#        for _a in xpos:
-#            if _a in antg_xy:
-#                res.append(_a)
-#                break
-#        if len(res)>0:
-#            pos=antg_xy.index(res[0])
-#            antigen_collect=np.random.binomial(1,b.affinity)
-#            if antigen_collect ==1 and antg_load[pos]>0:
-#                antg_load[pos] -=1
-#                b.antigen_collect +=1
-#                b.fdc_selected = 1
-    bc=list(map(antigen_collect_map2,bc))
-        
-    return lists, antg_load
+#    return lists, antg_load
 
 
 
@@ -565,8 +601,9 @@ def thelp33(lists,tlist):
 #            tc=b.tfh_attached
 #            tc.bcontact.remove(b)
 #            b.tfh_attached='null'
-    
+#    pool = multiprocessing.Pool(processes=2)
     pbc1=list(map(module2,pbc1))
+#    pool.close()
                         
             
     """
@@ -576,7 +613,9 @@ def thelp33(lists,tlist):
 #        antgbcell=sorted([[b,b.antigen_collect] for b in tcell.bcontact],key=lambda random: random[1],reverse=True)
 #        if len(antgbcell) > 0:
 #            antgbcell[0][0].tfhsignal += timestep
+#    pool = multiprocessing.Pool(processes=2)
     tlist=list(map(module3,tlist))
+#    pool.close()
                 
     
     """ 
@@ -592,7 +631,9 @@ def thelp33(lists,tlist):
 #            tc=b.tfh_attached
 #            tc.bcontact.remove(b)
 #            b.tfh_attached='null'
+#    pool = multiprocessing.Pool(processes=2)
     pbc2=list(map(module4,pbc2))
+#    pool.close()
             
     return lists
 
@@ -668,6 +709,7 @@ def dzdynamics(b):
 #                generation=b.generation+1
             nl=proliferate2(b)
             nl2+=nl
+
     
 
 def DZdynamics(lists):
@@ -705,6 +747,7 @@ def DZdynamics(lists):
 #                nl=proliferate2(b)
 #        nl2+=nl
     list(map(dzdynamics,lists))
+#    pool.close()
     nl2+=nl
     return nl2,rc
 
@@ -795,7 +838,7 @@ n_tfh=200
 #antigen_num=1000000
 tlist = [Tcell() for t in range(n_tfh)]
 
-tt=np.array([[t.xpos,t.ypos] for t in tlist]);plt.plot(tt[:,0],tt[:,1],'ro',ms=1)
+#tt=np.array([[t.xpos,t.ypos] for t in tlist]);plt.plot(tt[:,0],tt[:,1],'ro',ms=1)
 
 #plt.plot(tfh_x_coord,tfh_y_coord,'ro',ms=1)
 n_fdc=200
@@ -808,11 +851,11 @@ antg_y_coord=[round(np.random.normal(k, 5),0) for k in fdc_y_coord for b in rang
 antg_xy=[[i,j] for i,j in zip(antg_x_coord,antg_y_coord)]
 n_antg=500
 
-#antg_load=[n_antg for n in antg_x_coord]
+antg_load=[n_antg for n in antg_x_coord]
 
 antg_load=list(itertools.chain(*[antigen_distribution(antg_p_fdc,arm_fdc) for i in range(n_fdc)]))
 
-plt.plot(antg_x_coord,antg_y_coord,'bo',ms=1)
+#plt.plot(antg_x_coord,antg_y_coord,'bo',ms=1)
 
 
 particles, = ax.plot([], [], 'bo', ms=1)
@@ -873,9 +916,11 @@ affy2=[]
 ct=[]
 #trange=np.arange(1, 250, 0.1).tolist()
 for tnow in np.arange(1,500,timestep):
+#    pool = multiprocessing.Pool(processes=2)
+    l890 = time.time()
     if (round(tnow,pre) % 10) == 0:
         print(tnow, len(lists),len(LZ),len(selected_cells),len(ps_cells),len(outputcells))
-
+#    print(tnow, len(lists))
     bbc=[]
     
     birthtime=tnow
@@ -920,9 +965,9 @@ for tnow in np.arange(1,500,timestep):
 #    nl2,rc=DZdynamics(lists)
     rc=[]
     nl2=[]
-    l863 = time.time()
     list(map(dzdynamics,lists))
-    l865 = time.time()
+#    pool.close()
+
 #    print('dz dynamics =',l865-l863)
     
 #    nl2+=nl
@@ -979,17 +1024,19 @@ for tnow in np.arange(1,500,timestep):
 #            b.antg_clt=tnow+0.7
 #            b.tfh_contact_start = b.antg_clt + np.random.normal(0.5,0.1)
 #            b.tfh_contact_end = b.tfh_contact_start + np.random.normal(5,0.1)
-        l919 = time.time()
+        
         LZ_cells=list(map(fun3,LZ_cells))
-        l921 = time.time()
+#        pool.close()
+        
 #        print('l_919 =',l921-l919)
         LZ+=LZ_cells
-            
+    l1003 = time.time()          
 #### antigen collection
             
             
 #        
 #    lzcells=[b for b in LZ_cells]
+    l1009 = time.time()   
     
     gen5=[b for b in lists if b.generation==b.ndiv and b.selected ==1 and tnow > b.tmigration]
 #    gen6=[b for b in gen5 if tnow > b.tmigration]
@@ -1018,6 +1065,7 @@ for tnow in np.arange(1,500,timestep):
 #            b.tfh_contact_end = b.tfh_contact_start + np.random.normal(5,0.1)
 #            b.tfhsignal=0
         LZ_selected_cells=list(map(fun,LZ_selected_cells))
+#        pool.close()
             
         LZ+=LZ_selected_cells
 #    print([[b,b.birthtime, b.tmigration,b.LZentrytime,b.generation] for b in LZ_selected_cells])
@@ -1057,18 +1105,24 @@ for tnow in np.arange(1,500,timestep):
 #    print([[b.selected,b.generation,b.birthtime,b.nextdiv,b.tmigration,b.LZentrytime,b.antigen_collect,b.antg_clt,b.tfhsignal,b.tfhcontact,b.tfh_contact_start,b.tfh_contact_end] for b in lists if b.generation ==13 and b.tmigration < tnow])
 
 #    LZ=LZposition(LZ)
-    l997 = time.time()
+
+#    pool = multiprocessing.Pool(processes=2)
     LZ=list(map(LZposition2,LZ))
-    l999 = time.time()
+#    pool.close()
+    
 #    print('lz position =',l999-l997)
 #    bb.append([[b,b.xpos,b.ypos,b.tfhcontact,b.tfh_sig_t] for b in LZ])
 #    bb.append(LZ[:])
     
-    l1004 = time.time()
+    
     bc=[b for b in LZ if b.LZentrytime <= tnow and tnow <= b.antg_clt]
-    bc=list(map(antigen_collect_map,bc))
-#    LZ, antg_load =antigen_collect(LZ,antg_load)
-    l1006 = time.time()
+#    pool = multiprocessing.Pool(processes=2)
+#    bc=list(map(antigen_collect_map,bc))
+#    pool.close()
+
+
+    LZ, antg_load =antigen_collect(LZ,antg_load)
+    
 #    print('antigencollect =',l1006-l1004)
 #    print(sum(antg_load))
     
@@ -1078,9 +1132,11 @@ for tnow in np.arange(1,500,timestep):
 #    for b in LZ:
 #        if b.antigen_collect == 0 and b.antg_clt < tnow:
 #            b.deleting_time = b.antg_clt + np.random.normal(6,0.1)
-    l1016 = time.time()
+    
+#    pool = multiprocessing.Pool(processes=2)
     LZ=list(map(fun4,LZ))
-    l1018 = time.time()
+#    pool.close()
+    
 #    print('l1017 =',l1018-l1016)
     
     appcells = [b for b in LZ if b.antigen_collect == 0 and b.deleting_time < tnow]
@@ -1088,11 +1144,13 @@ for tnow in np.arange(1,500,timestep):
     appopcells+=appcells
     [LZ.remove(x) for x in appcells]
     
+    l1117 = time.time()
 #    pbc=[b for b in LZ if b.antigen_collect > 0 and b.antg_clt < tnow and b.tfh_contact_start < tnow and b.tfh_contact_end > tnow] ### how about implement this in t_help function, like LZposition and antigen collect function
 #    print(len([b.antigen_collect for b in LZ if b.antigen_collect > 0]))
-    l1028 = time.time()
+    l1120 = time.time()
+#    pool = multiprocessing.Pool(processes=2)
     LZ=thelp33(LZ,tlist)
-    l1030 = time.time()
+    
 #    print('thelp =',l1030-l1028)
 #    LZ=thelp3(LZ)
 #    for b in LZ:
@@ -1102,6 +1160,7 @@ for tnow in np.arange(1,500,timestep):
 #    ct.append([l865-l863,l921-l919,l999-l997,l1006-l1004,l1018-l1016,l1030-l1028])
     
     LZ=list(map(fun5,LZ))
+#    pool.close()
     
 #    pot_bc.append(pbc)
     
@@ -1137,7 +1196,9 @@ for tnow in np.arange(1,500,timestep):
 #        b.ndiv=b.generation + pmin+round((pmax-pmin)*((b.antigen_collect**2)/((b.antigen_collect**2)+(kp**2))))
 #        b.antigen_collect=0
 #        b.tfhsignal=0
+#    pool = multiprocessing.Pool(processes=2)
     selected_cells=list(map(fun2,selected_cells))
+#    pool.close()
     
 #    selected_cells=list(selected_cells)
     
@@ -1159,7 +1220,7 @@ for tnow in np.arange(1,500,timestep):
     
     lists+=selected_cells
     
-    
+#    pool.close()
 #### those cells need to be selected which are less than 6 hr as I implemented appcells    
 #    selected_cells=random.choices(LZ, k=np.random.binomial(len(LZ),0.002))
 #    selected_cells=set(selected_cells)
@@ -1185,6 +1246,9 @@ for tnow in np.arange(1,500,timestep):
 #    
 #    
     r.append([tnow,len(lists),len(LZ),len(outputcells),len(appopcells)])
+    
+    l1220 = time.time()
+    ct.append([l1003-l890,l1117-l1009,l1220-l1120])
 #
     
 xcoord=[[b.xpos for b in pltlist[item]] for item in range(len(pltlist))]  
