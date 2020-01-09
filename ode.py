@@ -22,22 +22,22 @@ def model(dydt,t):
         kk=0
     else:
         kk=1
-        
     s=(bm)*k*kk
-      
-    kmb=1;km = 0.01;kdm=0.1;kmp=0.005;p=0.05;
-    kvm=1;kv=0.001;knk=0.1;kdv=0.01;kdv2=0.0001;kdv3=0.1;kin=0.003;kdi=0.1;kdnk=0.01;
-    
-    dbn = s - p*bn
-    dbgc = 2*p*bn - km*bgc - kmp*bgc
-    dbm = kmb*v/(kvm+v) + km*bgc - kdm*bm - kdv2*bm*ic
-    dbpc = kmp*bgc - kdv3*bpc*ic
-    duc = - kin*uc*v
-    dic = kin*uc*v - kdi*ic*nk - kdv2*bm*ic - kdv3*bpc*ic
-    dv = kv*ic - kdv*v
-    dnk = knk - kdnk*nk - kdi*nk*ic
-    
-    eq = [dbn, dbgc, dbm, dbpc, duc, dic, dv, dnk]
+    kmb=1
+    km = 0.01
+    kdm=0.1
+    kv=10
+    kmp=0.005
+    p=0.05
+    kv=0.001
+    knk=0.1
+    kdv=0.01
+    kdv2=0.0001
+    kdv3=0.1
+    kin=0.003
+    kdi=0.1
+    kdnk=0.01
+    eq = [s-p*bn, 2*p*bn-km*bgc-kmp*bgc, kmb*v/(kv+v) +km*bgc-kdm*bm-kdv2*bm*ic, kmp*bgc-kdv3*bpc*ic, -kin*uc*v, kin*uc*v -kdi*ic*nk-kdv2*bm*ic-kdv3*bpc*ic, kv*ic-kdv*v, knk-kdnk*nk-kdi*nk*ic]
     return eq
 
 # initial condition
@@ -62,12 +62,6 @@ t=t/24
 # plot results
 plt.plot(t,y[:,0],'b',label='naive')
 plt.plot(t,y[:,1],'g',label='Bgc')
-
-plt.xlabel('time')
-plt.ylabel('y(t)')
-plt.legend()
-plt.show()
-
 plt.plot(t,y[:,2],'r',label='Bm')
 plt.plot(t,y[:,3],'k',label='Bpc')
 
@@ -92,9 +86,6 @@ plt.xlabel('time')
 plt.ylabel('y(t)')
 plt.legend()
 plt.show()
-
-
-
 
 
 
@@ -146,6 +137,14 @@ y = odeint(model,y0,t)
 
 t=t/24
 
+def plott(n,pos,col,label):
+    for i in range(n):
+        plt.plot(t,y[:,pos[i]],col[i],label=label[i])
+        plt.xlabel('time')
+        plt.ylabel('y(t)')
+        plt.legend()
+
+
 # plot results
 plt.plot(t,y[:,0],'b',label='naive')
 plt.plot(t,y[:,1],'g',label='Bgc')
@@ -181,6 +180,18 @@ plt.ylabel('y(t)')
 plt.legend()
 plt.show()
 
+n=3
+pos=[2,3,4]
+col=['r','g','b','m','k']
+label=['Bmigm','Bmigg','Bpc']
+
+
+        
+
+fig = plt.figure()
+plott(n,pos,col,label)
+fig = plt.figure()
+plott(n,pos,col,label)
 
 
 
@@ -188,32 +199,247 @@ plt.show()
 
 
 
+def modelN(dydt,t,params):
+    bn, bgc, bmigm, bmigg, bpigm, bpigg, uc, ic, v, nk = dydt
+
+    if t<300:
+        kk=1
+    else:
+        kk=0
+        
+    s=1*(bmigm)*kk
+    p=0.2;
+
+    kmigm = params[0]; kmigg = params[1]; kpigm = params[2]; kpigg = params[3]; kdm=params[4];
+    
+#    kswim = 0.01; kswimm = 1; kswig = 0.01; kswigm = 1;
+    kswim = params[5]; kswimm = params[6]; kswig =params[7]; kswigm = params[8];
+#    kcigm=0.01; kcigg=0.01;
+    kcigm=params[9];kcigg=params[10];
+#    kmb=0.01;kmb2=0.001;kmp=0.0005;
+#    kin=0.0005;kdi=0.01; kv=0.01;kdv=0.01; knk=0.1;kdnk=0.01;
+    kin=params[11];kdi=params[12];kv=params[13];kdv=params[14];knk=params[15];kdnk=params[16];
+    
+    dbn = s - p*bn
+    dbgc = 2*p*bn - kmigm*bgc - kmigg*bgc - kpigm*bgc - kpigg*bgc
+    dbmigm = kmigm*bgc  - kdm*bmigm - kswim*v*bn/(kswimm+v) 
+    dbmigg = kmigg*bgc - kdm*bmigg - kswig*v*bmigg/(kswigm+v)
+    dbpigm = kpigm*bgc + kswim * bn*v/(kswimm+v) - kdm*bpigm  - kcigm*bpigm*ic
+    dbpigg = kpigg*bgc - kdm*bpigg + kswig*v*bmigg/(kswigm+v) - kcigg*bpigg*ic
+    duc = - kin*uc*v
+    dic = kin*uc*v - kdi*ic*nk - kcigm*bpigm*ic - kcigg*bpigg*ic
+    dv = kv*ic - kdv*v
+    dnk = knk - kdnk*nk - kdi*nk*ic
+    
+    eq = [dbn, dbgc, dbmigm, dbmigg, dbpigm, dbpigg, duc, dic, dv, dnk]
+    return eq
+
+
+# initial condition
+bn0=1
+bgc0=0
+bmigm0=0
+bmigg0=0
+bpigm0=0
+bpigg0=0
+uc0=1000
+ic0=0
+v0=1
+nk0=100
+y0 = [bn0,bgc0,bmigm0,bmigg0,bpigm0,bpigg0,uc0,ic0,v0,nk0]
+
+##good param set 
+#p=0.2;s=1;
+#kmigm = 0.001; kmigg = 0.0005; kpigm = 0.0003; kpigg = 0.0001; kdm=0.01;
+#kswim = 0.01; kswimm = 10; kswig =0.01; kswigm = 10;
+#kcigm=kcigg=0.00001;
+#kin=0.0005;kdi=0.01; kv=0.01;kdv=0.01; knk=0.1;kdnk=0.01;
 
 
 
 
 
+kmigm = 0.001; kmigg = 0.0005; kpigm = 0.0003; kpigg = 0.0001; kdm=0.01;
+    
+#    kswim = 0.01; kswimm = 1; kswig = 0.01; kswigm = 1;
+kswim = 0.01; kswimm = 10; kswig =0.01; kswigm = 10;
+#    kcigm=0.01; kcigg=0.01;
+kcigm=0.00001;kcigg=0.00005
+#    kmb=0.01;kmb2=0.001;kmp=0.0005;
+kin=0.0005;kdi=0.01; kv=0.01;kdv=0.01; knk=0.1;kdnk=0.01;
+#kin=kdi=kv=kdv=knk=kdnk=0.0;
+
+params=[kmigm, kmigg,kpigm, kpigg, kdm, kswim, kswimm, kswig, kswigm, kcigm, kcigg,kin, kdi, kv, kdv, knk, kdnk]
+
+
+
+
+# time points
+t = np.linspace(0,1000,5000)
+
+# solve ODE
+y = odeint(modelN,y0,t,args=(params,))
+
+t=t/24
+n=2;pos=[0,1]
+col=['r','g','b','m','k']
+label=['naive','Bgc']
+fig = plt.figure()
+plott(n,pos,col,label)
+
+n=4;pos=[2,3,4,5]
+label=['Bmigm','Bmigg','Bpigm','Bpigg']
+fig = plt.figure()
+plott(n,pos,col,label)
+
+n=2;pos=[6,7]
+label=['Uc','Ic']
+fig = plt.figure()
+plott(n,pos,col,label)   
+
+n=2;pos=[8,9]
+label=['V','Nk']
+fig = plt.figure()
+plott(n,pos,col,label)         
+
+def modelN2(y, t, paras):
+    """
+    Your system of differential equations
+    """
+
+    bn = y[0]
+    bgc = y[1]
+    bmigm = y[2]
+    bmigg = y[3]
+    bpigm = y[4]
+    bpigg = y[5]
+    uc = y[6]
+    ic = y[7]
+    v = y[8]
+    nk = y[9]
+    
+    if t<300:
+        kk=1
+    else:
+        kk=0
+        
+    s=1*(bmigm)*kk
+    pp=0.2;
+        
+#    kmigm = 0.001; kmigg = 0.0005; kpigm = 0.0003; kpigg = 0.0001; 
+    kdm=0.01;
+    
+#    kswim = 0.01; kswimm = 1; kswig = 0.01; kswigm = 1;
+#    kswim = 0.01; kswimm = 10; kswig =0.01; kswigm = 10;
+#    kcigm=0.01; kcigg=0.01;
+    kcigm=0.00001;kcigg=0.00005
+#    kmb=0.01;kmb2=0.001;kmp=0.0005;
+    kin=0.0005;kdi=0.01; kv=0.01;kdv=0.01; knk=0.1;kdnk=0.01;
+
+    try:
+        kmigm = paras['kmigm'].value
+        kmigg = paras['kmigg'].value
+        kpigm = paras['kpigm'].value
+        kpigg = paras['kpigg'].value
+        kswim = paras['kswim'].value
+        kswimm = paras['kswimm'].value
+        kswig = paras['kswig'].value
+        kswigm = paras['kswigm'].value
+
+    except KeyError:
+        kmigm, kmigg, kpigm, kpigg, kswim, kswimm, kswig, kswigm = paras
+
+#    kmigm, kmigg, kpigm, kpigg = paras
+    # the model equations
+    dbn = s - pp*bn
+    dbgc = 2*pp*bn - kmigm*bgc - kmigg*bgc - kpigm*bgc - kpigg*bgc
+    dbmigm = kmigm*bgc  - kdm*bmigm - kswim*v*bn/(kswimm+v) 
+    dbmigg = kmigg*bgc - kdm*bmigg - kswig*v*bmigg/(kswigm+v)
+    dbpigm = kpigm*bgc + kswim * bn*v/(kswimm+v) - kdm*bpigm  - kcigm*bpigm*ic
+    dbpigg = kpigg*bgc - kdm*bpigg + kswig*v*bmigg/(kswigm+v) - kcigg*bpigg*ic
+    duc = - kin*uc*v
+    dic = kin*uc*v - kdi*ic*nk - kcigm*bpigm*ic - kcigg*bpigg*ic
+    dv = kv*ic - kdv*v
+    dnk = knk - kdnk*nk - kdi*nk*ic
+    
+    return [dbn, dbgc, dbmigm, dbmigg, dbpigm, dbpigg, duc, dic, dv, dnk]
 
 
 
 
 
+def g(t, x0, paras):
+    """
+    Solution to the ODE x'(t) = f(t,x,k) with initial condition x(0) = x0
+    """
+    x = odeint(modelN2, x0, t, args=(paras,))
+    return x
 
 
+def residual(paras, t, data):
+
+    """
+    compute the residual between actual data and fitted data
+    """
+
+#    x0 = paras['bn0'].value, paras['bgc0'].value, paras['bm0'].value, paras['bpc0'].value, paras['uc0'].value, paras['ic0'].value,paras['v0'].value, paras['nk0'].value
+    model = g(t, y0, paras)
+
+    # you only have data for one of your variables
+    x2_model = model[:, 2]
+    return (x2_model - data).ravel()
 
 
+# measured data
+t_measured = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37])
+t_measured = t_measured*24
+#x2_measured = np.array([0.000, 0.416, 0.489, 0.595, 0.506, 0.493, 0.458, 0.394, 0.335, 0.309])
 
+igmm = np.array([1, 3.69, 8.98, 12.88, 16.27, 19.37, 22.96, 26.46, 29.55, 32.15, 34.45, 36.05, 37.46])
+iggm = np.array([0.40,1.80,5.00,8.59,12.39, 16.78, 22.56, 27.75, 33.14, 37.73, 41.63, 45.12, 48.72])
+iggpc = np.array([0.20, 0.71,1.81, 3.31, 4.82, 6.12, 8.12, 10.82, 14.11, 18.21, 22.4, 26.89, 31.48])
 
+#data=[igmm,iggm,iggpc]
 
+plt.figure()
+plt.scatter(t_measured, igmm, marker='o', color='b', label='measured data', s=75)
 
+# set parameters including bounds; you can also fix parameters (use vary=False)
+params = Parameters()
+params.add('bn0', value=bn0, vary=False)
+params.add('bgc0', value=bgc0, vary=False)
+params.add('bmigm0', value=bmigm0, vary=False)
+params.add('bmigg0', value=bmigg0, vary=False)
+params.add('bpigm0', value=bpigm0, vary=False)
+params.add('bpigg0', value=bpigg0, vary=False)
+params.add('uc0', value=uc0, vary=False)
+params.add('ic0', value=ic0, vary=False)
+params.add('v0', value=v0, vary=False)
+params.add('nk0', value=nk0, vary=False)
+params.add('kmigm', value=0.01, min=0.00001, max=1000)
+params.add('kmigg', value=0.02, min=0.00001, max=1000)
+params.add('kpigm', value=0.03, min=0.00001, max=1000)
+params.add('kpigg', value=0.03, min=0.00001, max=1000)
+params.add('kswim', value=0.01, min=0.00001, max=1000)
+params.add('kswimm', value=0.02, min=0.00001, max=1000)
+params.add('kswig', value=0.03, min=0.00001, max=1000)
+params.add('kswigm', value=0.03, min=0.00001, max=1000)
 
+# fit model
+result = minimize(residual, params, args=(t_measured, igmm), method='leastsq')  # leastsq nelder
+# check results of the fit
+data_fitted = g(np.linspace(0., 1000., 1000), y0, result.params)
 
+# plot fitted data
+plt.plot(np.linspace(0., 1000., 1000), data_fitted[:, 1], '-', linewidth=2, color='red', label='fitted data')
+plt.legend()
+plt.xlim([0, max(t_measured)])
+plt.ylim([0, 50])
+#plt.ylim([0, 1.1 * max(data_fitted[:, 1])])
+# display fitted statistics
+report_fit(result)
 
-
-
-
-
-
+plt.show()
 
 ##1
 #def f(y, t, paras):
