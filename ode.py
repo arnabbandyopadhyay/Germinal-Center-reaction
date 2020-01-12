@@ -324,7 +324,7 @@ def modelN2(y, t, paras):
         kk=0
         
     s=1*(bmigm)*kk
-    pp=0.2;
+#    pp=0.2;
         
 #    kmigm = 0.001; kmigg = 0.0005; kpigm = 0.0003; kpigg = 0.0001; 
     kdm=0.01;
@@ -345,9 +345,11 @@ def modelN2(y, t, paras):
         kswimm = paras['kswimm'].value
         kswig = paras['kswig'].value
         kswigm = paras['kswigm'].value
+        pp = paras['pp'].value
+#        kk2 = paras['kk2'].value
 
     except KeyError:
-        kmigm, kmigg, kpigm, kpigg, kswim, kswimm, kswig, kswigm = paras
+        kmigm, kmigg, kpigm, kpigg, kswim, kswimm, kswig, kswigm,pp = paras
 
 #    kmigm, kmigg, kpigm, kpigg = paras
     # the model equations
@@ -386,8 +388,8 @@ def residual(paras, t, data):
     model = g(t, y0, paras)
 
     # you only have data for one of your variables
-    x2_model = model[:, 2]
-    return (x2_model - data).ravel()
+    x2_model = model[:, (2,3,5)]
+    return (x2_model - data)
 
 
 # measured data
@@ -399,10 +401,24 @@ igmm = np.array([1, 3.69, 8.98, 12.88, 16.27, 19.37, 22.96, 26.46, 29.55, 32.15,
 iggm = np.array([0.40,1.80,5.00,8.59,12.39, 16.78, 22.56, 27.75, 33.14, 37.73, 41.63, 45.12, 48.72])
 iggpc = np.array([0.20, 0.71,1.81, 3.31, 4.82, 6.12, 8.12, 10.82, 14.11, 18.21, 22.4, 26.89, 31.48])
 
-#data=[igmm,iggm,iggpc]
+data=np.transpose(np.array([igmm,iggm,iggpc]))
+
+bn0=1
+bgc0=1
+bmigm0=1
+bmigg0=1
+bpigm0=1
+bpigg0=1
+uc0=1000
+ic0=1
+v0=1
+nk0=100
+y0 = [bn0,bgc0,bmigm0,bmigg0,bpigm0,bpigg0,uc0,ic0,v0,nk0]
 
 plt.figure()
-plt.scatter(t_measured, igmm, marker='o', color='b', label='measured data', s=75)
+plt.scatter(t_measured, data[:,0], marker='o', color='b', label='measured data', s=75)
+plt.scatter(t_measured, data[:,1], marker='o', color='r', label='measured data', s=75)
+plt.scatter(t_measured, data[:,2], marker='o', color='g', label='measured data', s=75)
 
 # set parameters including bounds; you can also fix parameters (use vary=False)
 params = Parameters()
@@ -424,14 +440,18 @@ params.add('kswim', value=0.01, min=0.00001, max=1000)
 params.add('kswimm', value=0.02, min=0.00001, max=1000)
 params.add('kswig', value=0.03, min=0.00001, max=1000)
 params.add('kswigm', value=0.03, min=0.00001, max=1000)
+params.add('pp', value=0.03, min=0.00001, max=1000)
+#params.add('kk2', value=0.03, min=0.00001, max=1000)
 
 # fit model
-result = minimize(residual, params, args=(t_measured, igmm), method='leastsq')  # leastsq nelder
+result = minimize(residual, params, args=(t_measured, igmm), method='Nelder-Mead',options={'disp': False})  # leastsq nelder
 # check results of the fit
 data_fitted = g(np.linspace(0., 1000., 1000), y0, result.params)
 
 # plot fitted data
-plt.plot(np.linspace(0., 1000., 1000), data_fitted[:, 1], '-', linewidth=2, color='red', label='fitted data')
+plt.plot(np.linspace(0., 1000., 1000), data_fitted[:, 2], '-', linewidth=2, color='blue', label='fitted data')
+plt.plot(np.linspace(0., 1000., 1000), data_fitted[:, 3], '-', linewidth=2, color='red', label='fitted data')
+plt.plot(np.linspace(0., 1000., 1000), data_fitted[:, 5], '-', linewidth=2, color='green', label='fitted data')
 plt.legend()
 plt.xlim([0, max(t_measured)])
 plt.ylim([0, 50])
