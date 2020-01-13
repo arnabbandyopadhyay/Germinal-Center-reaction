@@ -221,7 +221,7 @@ def modelN(dydt,t,params):
     kin=params[11];kdi=params[12];kv=params[13];kdv=params[14];knk=params[15];kdnk=params[16];
     
     dbn = s - p*bn
-    dbgc = 2*p*bn - kmigm*bgc - kmigg*bgc - kpigm*bgc - kpigg*bgc
+    dbgc = 2*p*bn - kmigm*bgc - kmigg*bgc - kpigm*bgc - kpigg*bgc 
     dbmigm = kmigm*bgc  - kdm*bmigm - kswim*v*bn/(kswimm+v) 
     dbmigg = kmigg*bgc - kdm*bmigg - kswig*v*bmigg/(kswigm+v)
     dbpigm = kpigm*bgc + kswim * bn*v/(kswimm+v) - kdm*bpigm  - kcigm*bpigm*ic
@@ -355,9 +355,9 @@ def modelN2(y, t, paras):
     # the model equations
     dbn = s - pp*bn
     dbgc = 2*pp*bn - kmigm*bgc - kmigg*bgc - kpigm*bgc - kpigg*bgc
-    dbmigm = kmigm*bgc  - kdm*bmigm - kswim*v*bn/(kswimm+v) 
+    dbmigm = kmigm*bgc  - kdm*bmigm - kswim*v*bmigm/(kswimm+v) 
     dbmigg = kmigg*bgc - kdm*bmigg - kswig*v*bmigg/(kswigm+v)
-    dbpigm = kpigm*bgc + kswim * bn*v/(kswimm+v) - kdm*bpigm  - kcigm*bpigm*ic
+    dbpigm = kpigm*bgc + kswim * bmigm*v/(kswimm+v) - kdm*bpigm  - kcigm*bpigm*ic
     dbpigg = kpigg*bgc - kdm*bpigg + kswig*v*bmigg/(kswigm+v) - kcigg*bpigg*ic
     duc = - kin*uc*v
     dic = kin*uc*v - kdi*ic*nk - kcigm*bpigm*ic - kcigg*bpigg*ic
@@ -389,7 +389,8 @@ def residual(paras, t, data):
 
     # you only have data for one of your variables
     x2_model = model[:, (2,3,5)]
-    return (x2_model - data)
+    val=(x2_model[:,0] - igmm)+(x2_model[:,1] - iggm)+(x2_model[:,2] - iggpc)
+    return val
 
 
 # measured data
@@ -444,7 +445,7 @@ params.add('pp', value=0.03, min=0.00001, max=1000)
 #params.add('kk2', value=0.03, min=0.00001, max=1000)
 
 # fit model
-result = minimize(residual, params, args=(t_measured, igmm), method='Nelder-Mead',options={'disp': False})  # leastsq nelder
+result = minimize(residual, params, args=(t_measured, igmm), method='trust-constr',options={'disp': False})  # leastsq nelder
 # check results of the fit
 data_fitted = g(np.linspace(0., 1000., 1000), y0, result.params)
 
