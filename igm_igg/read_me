@@ -1,0 +1,795 @@
+mod: 
+ 
+ igm less affinity (high distance 8:10)
+ igg 0:10
+ 2:1 cell enters
+ affinity 0.5
+ 10% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_2.xlsx
+
+
+
+
+ mod: 
+ 
+ igm less affinity (high distance 8:10)
+ igg 0:10
+ 2:2 cell enters
+ affinity 0.5
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_3.xlsx
+ 
+ 
+ mod: 
+ 
+ igm less affinity (same distance 0:10)
+ 2:2 cell enters
+ affinity 0.5
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_4.xlsx
+
+ mod: 
+ 
+ igm less affinity (high distance 6:8)
+ igg 0:8
+ 3:1 cell enters
+ affinity 0.5
+ 5% switching
+ data: output_mem_cls_swt_5.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (same distance 0:10)
+ 3:1 cell enters
+ affinity 0.5
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_6.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 6:8)
+ igg 0:6
+ 3:1 cell enters
+ tfh <1 :
+ affinity < 0.6 mem
+ affinity > 0.6 recycle
+ 
+ tfh > 1:
+ affinity > 0.8 plasma
+ affinity 0.6-0.8 igg
+ affinity < 0.6 recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_7.xlsx
+ 
+ 
+ mod: 
+ 
+ igm less affinity (high distance 6:8)
+ igg 0:6
+ 3:1 cell enters
+ tfh <1 :
+ affinity < 0.6 mem
+ affinity > 0.6 recycle
+ 
+ tfh > 1:
+ affinity > 0.8 plasma
+ affinity 0.6-0.8 recycle
+ affinity < 0.6 recycle
+ 
+ 30% is igg out of recycle // huge no of cells 200000
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_8.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 6:8)
+ igg 0:6
+ 3:1 cell enters
+ tfh <1 :
+ affinity < 0.6 mem
+ affinity > 0.6 recycle
+ 
+ tfh > 1:
+ affinity > 0.8 plasma
+ affinity 0.6-0.8 recycle
+ affinity < 0.6 recycle
+ 
+ 50% is igg out of recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_9.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 6:8)
+ igg 0:6
+ 3:1 cell enters
+ tfh <1 :
+ affinity < 0.6 mem
+ affinity > 0.6 recycle
+ 
+ tfh > 1:
+ affinity > 0.8 plasma
+ affinity 0.6-0.8 recycle
+ affinity < 0.6 recycle
+ 
+ 40% is igg out of recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_10.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 3:1 cell enters
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.7 plasma
+ affinity < 0.7 recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_2.py
+ data: output_mem_cls_swt_11.xlsx
+ comm: not bad but gc shape is not good
+ 
+ mod: 
+ 
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.6  50% are plasma
+ affinity < 0.6 and remaining of above recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_12.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  50% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_13.xlsx
+ 
+ mod: 
+ 
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  30% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  50% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_14.xlsx
+ 
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  30% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  50% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_15.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ initial div 2-3
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  30% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  50% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 2.5% switching
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_16.xlsx
+ good result
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  30% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 2.5% switching before division
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_17.xlsx
+ good result
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 2.5% switching only upto 72 hr before division
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_18.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 2.5% switching only upto 72 hr but happening after the division to keep igm high
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_19.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 5% switching only upto 72 hr but happening after the division to keep igm high
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_20.xlsx
+
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 10% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_21.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 20% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_22.xlsx
+ 
+  mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_23.xlsx
+ 
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ affinity > 0.5  30% are plasma
+ affinity < 0.5 and remaining of above recycle
+ 
+ 17% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_24.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 30% are plasma
+ remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_25.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_26.xlsx
+
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening after the division to keep igm high
+ in the 5% switching is not happening
+ 
+ with apoptosis
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_27.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 2% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_28.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 2% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_29.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 5% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_30.xlsx
+ 
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 :
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 5% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (50%) as no cells after 22 days
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_31.xlsx & output_mem_cls_swt_32.xlsx (10% switching)
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <0.7 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 0.7:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 10% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (50%) as no cells after 22 days
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_33.xlsx
+
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <0.7 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 0.7:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 10% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (100%) with 6000 antigen
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_34.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 5% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (100%) antigen as normal
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_35.xlsx
+ 
+ 
+ 
+ Observation:
+ initial div 5-6, no apoptosis, 10% class switching upto 72 hr, 25% igg enters gc
+ class switch happens around 6 days
+ 
+ 
+ mod: (not sure)
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 25% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 30% are plasma
+ remaining of above recycle
+ 
+ 10% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (50%) antigen as normal
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_39.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (100%) antigen as normal
+ kp=10
+ 
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_40.xlsx
+ 
+ mod: 
+ time=900
+ igm less affinity (high distance 0:8)
+ igg 0:6
+ 10% chance for igg to enter
+ 3 cells enter 96 hr
+ 
+ tfh <1 : gc is not continuing after 22 days after implementing apoptosis and also class switching is not happening
+ all out
+ affinity < 0.5 mem
+ affinity > 0.5 mem  0% are plasma
+ automatically igm population should be higher at early phase and later igg
+ 
+ tfh > 1:
+ 50% are plasma
+ remaining of above recycle
+ 
+ 15% switching only upto 72 hr but happening before the division
+ 
+ with apoptosis (100%) antigen as normal
+ kp=10
+ Tfh number 300 to keep it sustained long
+ file: ab_gc_affinity_map_3d_continuous_memory_3.py
+ data: output_mem_cls_swt_41.xlsx
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

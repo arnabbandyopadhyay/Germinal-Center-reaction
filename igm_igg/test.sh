@@ -1,0 +1,10 @@
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output1.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output2.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output3.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output4.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output5.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output6.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output7.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output8.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output9.txt &
+python3 ab_gc_affinity_map_3d_continuous_memory_2.py > output10.txt &
